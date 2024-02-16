@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: j-post-server
+  namespace: prod
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: j-post-server
+  template:
+    metadata:
+      labels:
+        app: j-post-server
+    spec:
+      containers:
+        - name: j-post-container
+          image: jmg173/j-post:0.0.1
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+          envFrom:
+            - configMapRef:
+                name: j-post-pg-config
+            - secretRef:
+                name: j-post-pg-secret
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh","-c","sleep 10"] #필수는 아니다, 롤링업데이트로 파드 교체될때 요청들 정리되게끔 강제적으로 10초 준다.
+#          readinessProbe: # 스프링 시큐리티 수정 필요
+#            httpGet:
+#              path: post/healthcheck/ready
+#              port: 8080
+#            initialDelaySeconds: 30
+#            periodSeconds: 1
+#            successThreshold: 1
+#            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: post/healthcheck/live
+#              port: 8080
+#            initialDelaySeconds: 30
+#            periodSeconds: 1
+#            failureThreshold: 7

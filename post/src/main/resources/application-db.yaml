@@ -1,0 +1,46 @@
+spring:
+  config:
+    activate:
+      on-profile: local-db
+  jpa:
+    database: postgresql
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    #      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+    show-sql: true
+  datasource:
+    hikari:
+      maximum-pool-size: 4
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: '0000'
+    plaform: postgres
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod-db
+  jpa:
+    database: postgresql
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+    #      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+    show-sql: true
+  datasource:
+    hikari:
+      maximum-pool-size: 4
+    url: jdbc:postgresql://${PG_HOST}:${PG_PORT}/postgres
+    username: ${PG_USER}
+    password: ${PG_PASSWORD}
+    plaform: postgres
+    driver-class-name: org.postgresql.Driver

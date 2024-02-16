@@ -1,0 +1,24 @@
+spring:
+  config:
+    activate:
+      on-profile: local-common
+server:
+  shutdown: immediate
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev-common
+server:
+  shutdown: immediate
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod-common
+server:
+  shutdown: graceful

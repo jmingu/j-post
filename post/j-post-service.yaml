@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: j-post-service
+  namespace: prod
+spec:
+  selector:
+    app: j-post-server
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8081 # pod가 실행되고 있는 포트

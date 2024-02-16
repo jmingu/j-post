@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.8'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+//group = 'com.post'
+//version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // jsonwebtoken(okta), java-jwt는 oath0에서 만들었다
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+
+
+    testImplementation 'org.springframework.security:spring-security-test'
+    // OpenFeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.3'
+
+    implementation project(':common') // root project의 settings.gradel에 선언, 이름 같아야 함, root project 제외 settings.gradel은 삭제
+}
+
+tasks.named('bootBuildImage') {
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.register("prepareKotlinBuildScriptModel") {}// implementation project 후 에러나서 설정
+
+bootJar{
+    archivesBaseName = 'j-post'
+    archiveFileName = 'j-post.jar'
+    archiveVersion = "0.0.1"
+}

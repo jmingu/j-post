@@ -1,0 +1,4 @@
+rootProject.name = 'jpost'
+// 프로젝트의 가지고 있는 모듈을 선언
+include 'post'
+include 'common'

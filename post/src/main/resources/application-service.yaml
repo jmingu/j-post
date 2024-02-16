@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: local-service
+
+service:
+  j-user-service: http://localhost:8080
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod-service
+
+service:
+  j-user-service: http://j-post-service:8080
+

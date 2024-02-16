@@ -1,0 +1,45 @@
+server:
+  servlet:
+    context-path: /post
+  port: 8081
+spring:
+  profiles:
+    active:
+      - local
+    group:
+      local:
+        - local-db
+        - local-oauth2
+        - local-common
+        - local-service
+      dev:
+        - dev-db
+        - dev-oauth2
+        - dev-common
+        - dev-service
+      prod:
+        - prod-db
+        - prod-oauth2
+        - prod-common
+        - prod-service
+    include:
+      - db
+      - oauth2
+      - common
+      - service
+
+jwt:
+  secret-key: jmg_project_application_secret_key  #256bit 넘어야 한다
+  token:
+    expired-time: 60 #60분
+    expired-refresh-time: 10080 #7일
+
+logging:
+  level:
+    com:
+      post: debug
+    org:
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace
