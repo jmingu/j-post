@@ -15,7 +15,7 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 4
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/post
     username: postgres
     password: '0000'
     plaform: postgres
@@ -39,7 +39,7 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 4
-    url: jdbc:postgresql://${PG_HOST}:${PG_PORT}/postgres
+    url: jdbc:postgresql://${PG_HOST}:${PG_PORT}/post
     username: ${PG_USER}
     password: ${PG_PASSWORD}
     plaform: postgres

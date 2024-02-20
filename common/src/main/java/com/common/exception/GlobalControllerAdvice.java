@@ -1,6 +1,7 @@
-package com.post.common.exception;
+package com.common.exception;
 
-import com.post.common.dto.CommonResponseDto;
+
+import com.common.dto.CommonResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

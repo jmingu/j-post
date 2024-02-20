@@ -1,7 +1,8 @@
-package com.post.common.dto;
+package com.common.dto;
 
+import com.common.enums.CodeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.post.common.enums.CodeEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,6 +1,7 @@
-package com.post.common.exception;
+package com.common.exception;
 
-import com.post.common.enums.CodeEnum;
+
+import com.common.enums.CodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

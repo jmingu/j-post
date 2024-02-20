@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.8'
     id 'io.spring.dependency-management' version '1.1.4'
+
+    // 다른 모듈에서 api를 사용할 수 있다
+    id 'java-library'
 }
 
 group = 'com.common'
@@ -38,7 +41,9 @@ dependencies {
             apply plugin: 'java-library'
         }
      */
-//    api 'org.springframework.boot:spring-boot-starter-data-jpa' // api 키워드 사용 다른 모듈에서 접근할 수 있음
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa' // api 키워드 사용 다른 모듈에서 접근할 수 있음
+    api 'org.postgresql:postgresql'
 
 }
 
