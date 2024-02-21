@@ -1,19 +1,21 @@
 package com.common.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
-@Table(name="tb_post")
-public class PostEntity extends BaseEntity{
+@Getter
+@Table(name="tb_board")
+public class BoardEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;
+    private Long boardId;
 
-    private LocalDateTime postDate;
+    private LocalDateTime boardDate;
 
     private String title;
 
@@ -21,10 +23,10 @@ public class PostEntity extends BaseEntity{
 
     private Long userId;
 
-    public PostEntity(String title, String content, Long userId) {
+    public BoardEntity(String title, String content, Long userId) {
         setCreateDate(LocalDateTime.now());
         setCreateBy("SYSTEM");
-        this.postDate = LocalDateTime.now();
+        this.boardDate = LocalDateTime.now();
         this.title = title;
         this.content = content;
         this.userId = userId;

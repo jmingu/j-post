@@ -14,19 +14,19 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(JApplicationException.class)
     public ResponseEntity<?> applicationHandler(JApplicationException e) {
-        log.error("[JApplicationException.class] ERROR :::: {}", e.getMessage());
+        e.printStackTrace();
         return CommonResponseDto.error(e.getResultCode(), e.getResultMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> exceptionHandler(RuntimeException e) {
-        log.error("[RuntimeException.class] ERROR :::: {}", e.getMessage());
+        e.printStackTrace();
         return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "server error");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handlerException(Exception e) {
-        log.error("[Exception.class] ERROR :::: {}", e.getMessage());
+        e.printStackTrace();
         return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "server error");
     }
 }

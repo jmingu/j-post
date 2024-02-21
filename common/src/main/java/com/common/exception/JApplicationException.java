@@ -18,11 +18,13 @@ public class JApplicationException extends RuntimeException {
     }
 
     public JApplicationException(String resultMessage) {
+        super(resultMessage);
         this.resultCode = CodeEnum.ERROR.getCode();
         this.resultMessage = resultMessage;
     }
 
     public JApplicationException(CodeEnum codeEnum, String resultMessage) {
+        super(resultMessage);
         this.resultCode = codeEnum.getCode();
         this.resultMessage = resultMessage;
     }

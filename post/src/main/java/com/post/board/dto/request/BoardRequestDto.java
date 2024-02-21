@@ -3,7 +3,7 @@ package com.post.board.dto.request;
 import lombok.Getter;
 
 @Getter
-public class PostRequestDto {
+public class BoardRequestDto {
     private String title;
     private String content;
 }
