@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @FeignClient(name = "user", url = "${service.j-user-service}")
 public interface UserInfoFeignClient {
     @GetMapping("/api/user/{loginId}")
-    ResponseEntity<UserResultDto> getUserResult(@RequestHeader("Authorization") String token, @PathVariable String loginId);
+    ResponseEntity<UserResultDto> getUserResult(@RequestHeader("X-Auth-Status") String token, @PathVariable String loginId);
 
 }
 

@@ -37,7 +37,7 @@ public class BoardRestController {
     public ResponseEntity<CommonResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, Principal principal, HttpServletRequest request) {
 
         // 헤더 정보
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String header = request.getHeader("X-Auth-Status");
         // 토큰에서 받아온 유저 아이디
         log.debug("principal ==> {}", principal.getName());
         BoardCreateDto boardCreateDto = BoardCreateDto.builder()
