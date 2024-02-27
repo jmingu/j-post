@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class BoardFindDto {
 
     private Long boardId;
-    private String userName;
+    private String nickname;
     private String title;
     private String content;
     private LocalDateTime boardDate;

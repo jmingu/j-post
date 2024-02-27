@@ -17,10 +17,14 @@ public class CryptoUtil {
     }
 
     // 복호화
-    public static String decrypt(String decryptedData, String key) throws Exception {
+    public static String decrypt(String header) throws Exception {
+
+        final String key = header.substring(0, 16).trim(); // 암호화 랜덤키
+        final String value = header.substring(16).trim(); // 암호화 된 정보
+
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES"));
-        byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(decryptedData));
+        byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(value));
         return new String(decrypted, StandardCharsets.UTF_8);
     }
 }

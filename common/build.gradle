@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.4'
 
     // 다른 모듈에서 api를 사용할 수 있다
-    id 'java-library'
+//    id 'java-library'
 }
 
 group = 'com.common'
@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    implementation 'org.springframework.boot:spring-boot-starter'
+//    compileOnly 'org.projectlombok:lombok'
+//    annotationProcessor 'org.projectlombok:lombok'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     //application.yml 파일의 값을 읽어와서 멤버변수에 자동으로 할당한다.
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+//    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
     /*
     api가 아닌 implementation로 선언하면
@@ -41,9 +41,9 @@ dependencies {
             apply plugin: 'java-library'
         }
      */
-    api 'org.springframework.boot:spring-boot-starter-web'
-    api 'org.springframework.boot:spring-boot-starter-data-jpa' // api 키워드 사용 다른 모듈에서 접근할 수 있음
-    api 'org.postgresql:postgresql'
+//    api 'org.springframework.boot:spring-boot-starter-web'
+//    api 'org.springframework.boot:spring-boot-starter-data-jpa' // api 키워드 사용 다른 모듈에서 접근할 수 있음
+//    api 'org.postgresql:postgresql'
 
 }
 
