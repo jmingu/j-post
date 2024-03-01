@@ -26,6 +26,14 @@ public class CommentEntity extends BaseEntity{
     private Long parentCommentId;
 
 
+    public CommentEntity(BoardEntity boardEntity, Long userId, String content) {
+        setCreateDate(LocalDateTime.now());
+        setCreateBy("SYSTEM");
+        this.userId = userId;
+        this.boardEntity = boardEntity;
+        this.content = content;
+    }
+
     public CommentEntity(BoardEntity boardEntity, Long userId, String content, Long parentCommentId) {
         setCreateDate(LocalDateTime.now());
         setCreateBy("SYSTEM");
@@ -33,7 +41,5 @@ public class CommentEntity extends BaseEntity{
         this.boardEntity = boardEntity;
         this.content = content;
         this.parentCommentId = parentCommentId;
-
-
     }
 }

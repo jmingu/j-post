@@ -17,6 +17,10 @@ public class ReactionEntity extends BaseEntity{
 
     private String reaction;
 
+    public ReactionEntity(Long reactionId) {
+        this.reactionId = reactionId;
+    }
+
     public ReactionEntity(String reaction) {
         setCreateDate(LocalDateTime.now());
         setCreateBy("SYSTEM");

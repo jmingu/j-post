@@ -15,8 +15,6 @@ public class BoardEntity extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
-    private LocalDateTime boardDate;
-
     private String title;
 
     private String content;
@@ -32,7 +30,6 @@ public class BoardEntity extends BaseEntity{
     public BoardEntity(String title, String content, Long userId) {
         setCreateDate(LocalDateTime.now());
         setCreateBy("SYSTEM");
-        this.boardDate = LocalDateTime.now();
         this.title = title;
         this.content = content;
         this.userId = userId;

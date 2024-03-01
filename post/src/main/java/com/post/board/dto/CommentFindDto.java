@@ -7,12 +7,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class BoardFindDto {
-
-    private Long boardId;
-    private String nickname;
-    private String title;
+public class CommentFindDto {
+    private Long commentId;
     private String content;
-    private long viewCount;
+    private String nickname;
     private LocalDateTime createDate;
+
 }

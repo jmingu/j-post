@@ -105,4 +105,17 @@ public class BoardRestController {
 
         return CommonResponseDto.success(boardId);
     }
+
+    /**
+     * 좋아요
+     */
+    @PostMapping("/borads/{boardId}/like")
+    public ResponseEntity<CommonResponseDto> boardLike(@PathVariable Long boardId, HttpServletRequest request) throws Exception {
+        // 헤더 정보
+        final String header = request.getHeader("X-Auth-Status");
+
+        boardService.boardLike(boardId, header);
+
+        return CommonResponseDto.success(boardId);
+    }
 }

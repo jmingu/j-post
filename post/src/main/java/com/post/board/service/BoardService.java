@@ -2,12 +2,15 @@ package com.post.board.service;
 
 import com.common.entity.BoardEntity;
 import com.common.entity.BoardHistoryEntity;
+import com.common.entity.BoardReactionEntity;
+import com.common.entity.ReactionEntity;
 import com.common.exception.JApplicationException;
 import com.post.board.dto.BoardCreateDto;
 import com.post.board.dto.BoardEditDto;
 import com.post.board.dto.BoardFindDto;
 import com.post.board.dto.UserResultDto;
 import com.post.board.repository.BoardHistoryReposiroty;
+import com.post.board.repository.BoardReactionRepositoty;
 import com.post.board.repository.BoardReposiroty;
 import com.post.common.configuration.util.CryptoUtil;
 import com.post.common.feign.UserInfoFeignClient;
@@ -30,6 +33,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class BoardService {
     private final BoardReposiroty boardReposiroty;
+
+    private final BoardReactionRepositoty boardReactionRepositoty;
     private final UserInfoFeignClient userInfoFeignClient;
     private final BoardHistoryReposiroty boardHistoryReposiroty;
 
@@ -67,9 +72,9 @@ public class BoardService {
                     .boardId(boardEntity.getContent().get(i).getBoardId())
                     .title(boardEntity.getContent().get(i).getTitle())
                     .content(boardEntity.getContent().get(i).getContent())
-                    .boardDate(boardEntity.getContent().get(i).getBoardDate())
                     .nickname(userResult.getBody().getResult().getNickname())
                     .viewCount(boardEntity.getContent().get(i).getViewCnt() == null ? 0 : boardEntity.getContent().get(i).getViewCnt())
+                    .createDate(boardEntity.getContent().get(i).getCreateDate())
                     .build();
 
             boardFindDtos.add(boardFindDto);
@@ -117,9 +122,9 @@ public class BoardService {
                 .boardId(boardEntity.getBoardId())
                 .title(boardEntity.getTitle())
                 .content(boardEntity.getContent())
-                .boardDate(boardEntity.getBoardDate())
                 .nickname(userResult.getBody().getResult().getNickname())
                 .viewCount(boardEntity.getViewCnt() == null ? 0 : boardEntity.getViewCnt())
+                .createDate(boardEntity.getCreateDate())
                 .build();
 
         return boardFindDto;
@@ -177,6 +182,45 @@ public class BoardService {
         // 삭제된 게시물이 없을 시
         if (updateInt == 0) {
             throw new JApplicationException("삭제된 게시물이 없습니다.");
+        }
+
+    }
+
+    /**
+     * 좋아요
+     */
+    @Transactional
+    public void boardLike(Long boardId, String header) throws Exception {
+
+        // 헤더에 login_id 존재
+        String loginId = CryptoUtil.decrypt(header);
+
+        // 로그인 아이디로 사용자 정보 조회
+        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserLoginResult(header, loginId);
+        BoardEntity board = new BoardEntity(boardId);
+
+        BoardReactionEntity boardReaction = boardReactionRepositoty.findByBoardEntityAndUserId(board, userResult.getBody().getResult().getUserId());
+
+        // null일경우 처음 좋아요, 좋아요 등록
+        if (boardReaction == null) {
+
+            BoardEntity boardEntity = new BoardEntity(boardId);
+            // 1 좋아요, 2 좋아요 취소
+            ReactionEntity reactionEntity = new ReactionEntity(1L);
+            BoardReactionEntity boardReactionEntity = new BoardReactionEntity(boardEntity, reactionEntity, userResult.getBody().getResult().getUserId());
+
+            boardReactionRepositoty.save(boardReactionEntity);
+        }
+        // 1 이미 좋아요를 누르상태 : 좋아요 취소로 상태 변경
+        else if (boardReaction.getReactionEntity().getReactionId() == 1) {
+            int i = boardReactionRepositoty.updateReaction(boardReaction.getBoardReactionId(), userResult.getBody().getResult().getUserId(), 2L, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        // 2 좋아요 취소한 상태 : 좋아요로 다시 상태 변경
+        else if (boardReaction.getReactionEntity().getReactionId() == 2) {
+            int i = boardReactionRepositoty.updateReaction(boardReaction.getBoardReactionId(), userResult.getBody().getResult().getUserId(), 1L, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        else {
+            throw new JApplicationException("잘못된 상태 값");
         }
 
     }

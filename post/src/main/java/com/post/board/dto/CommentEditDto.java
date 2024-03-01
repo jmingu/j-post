@@ -5,9 +5,8 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class CommentCreateDto {
-    private Long boardId;
-    private Long parentCommentId;
+public class CommentEditDto {
+    private Long commentId;
     private String loginId;
     private String content;
 }
