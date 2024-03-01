@@ -14,4 +14,5 @@ public class BoardFindDto {
     private String title;
     private String content;
     private LocalDateTime boardDate;
+    private long viewCount;
 }

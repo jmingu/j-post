@@ -44,4 +44,12 @@ public interface BoardReposiroty extends JpaRepository<BoardEntity, Long> {
                   @Param("userId") String userId,
                   @Param("deleteDate") LocalDateTime deleteDate);
 
+    /**
+     * 조회수 +1
+     */
+    @Modifying
+    @Query("update BoardEntity board set board.viewCnt = board.viewCnt +1 where board.boardId = :boardId")
+    int updateViewCount(@Param("boardId") Long boardId);
+
+
 }

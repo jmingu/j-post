@@ -23,6 +23,12 @@ public class BoardEntity extends BaseEntity{
 
     private Long userId;
 
+    private Long viewCnt;
+
+    public BoardEntity(Long boardId) {
+        this.boardId = boardId;
+    }
+
     public BoardEntity(String title, String content, Long userId) {
         setCreateDate(LocalDateTime.now());
         setCreateBy("SYSTEM");
@@ -30,5 +36,6 @@ public class BoardEntity extends BaseEntity{
         this.title = title;
         this.content = content;
         this.userId = userId;
+        this.viewCnt = 0L;
     }
 }

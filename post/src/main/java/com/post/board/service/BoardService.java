@@ -1,11 +1,13 @@
 package com.post.board.service;
 
 import com.common.entity.BoardEntity;
+import com.common.entity.BoardHistoryEntity;
 import com.common.exception.JApplicationException;
 import com.post.board.dto.BoardCreateDto;
 import com.post.board.dto.BoardEditDto;
 import com.post.board.dto.BoardFindDto;
 import com.post.board.dto.UserResultDto;
+import com.post.board.repository.BoardHistoryReposiroty;
 import com.post.board.repository.BoardReposiroty;
 import com.post.common.configuration.util.CryptoUtil;
 import com.post.common.feign.UserInfoFeignClient;
@@ -29,6 +31,7 @@ import java.util.List;
 public class BoardService {
     private final BoardReposiroty boardReposiroty;
     private final UserInfoFeignClient userInfoFeignClient;
+    private final BoardHistoryReposiroty boardHistoryReposiroty;
 
     /**
      * 등록
@@ -66,6 +69,7 @@ public class BoardService {
                     .content(boardEntity.getContent().get(i).getContent())
                     .boardDate(boardEntity.getContent().get(i).getBoardDate())
                     .nickname(userResult.getBody().getResult().getNickname())
+                    .viewCount(boardEntity.getContent().get(i).getViewCnt() == null ? 0 : boardEntity.getContent().get(i).getViewCnt())
                     .build();
 
             boardFindDtos.add(boardFindDto);
@@ -78,11 +82,36 @@ public class BoardService {
     /**
      * 상세 조회
      */
+    @Transactional
     public BoardFindDto findByBoardId(Long boardId, String header) {
 
+        // 조회수 +1
+        try {
+            boardReposiroty.updateViewCount(boardId);
+        } catch (Exception e) {
+            log.error("게시물 조회수 에러 ==> {}", e.getMessage());
+        }
+
+        // 게시물 조회
         BoardEntity boardEntity = boardReposiroty.findByBoardId(boardId);
 
+        // 사용자 조회
         ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
+
+        // 조회이력 등록, 조회이력은 게시물당 1번
+        try {
+            int historyCount = boardHistoryReposiroty.countByBoardIdAndUserId(boardId, userResult.getBody().getResult().getUserId());
+
+            // 조회 이력이 없으면 등록
+            if (historyCount == 0) {
+                BoardHistoryEntity boardHistoryEntity = new BoardHistoryEntity(boardEntity, userResult.getBody().getResult().getUserId());
+                boardHistoryReposiroty.save(boardHistoryEntity);
+            }
+            // todo 업데이트 이력이 필요 시 개발
+
+        } catch (Exception e) {
+            log.error("조회 이력 에러 ==> {}", e.getMessage());
+        }
 
         BoardFindDto boardFindDto = BoardFindDto.builder()
                 .boardId(boardEntity.getBoardId())
@@ -90,6 +119,7 @@ public class BoardService {
                 .content(boardEntity.getContent())
                 .boardDate(boardEntity.getBoardDate())
                 .nickname(userResult.getBody().getResult().getNickname())
+                .viewCount(boardEntity.getViewCnt() == null ? 0 : boardEntity.getViewCnt())
                 .build();
 
         return boardFindDto;
