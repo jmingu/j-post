@@ -25,6 +25,10 @@ public class CommentEntity extends BaseEntity{
 
     private Long parentCommentId;
 
+    public CommentEntity(Long commentId) {
+
+        this.commentId = commentId;
+    }
 
     public CommentEntity(BoardEntity boardEntity, Long userId, String content) {
         setCreateDate(LocalDateTime.now());

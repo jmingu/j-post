@@ -22,6 +22,7 @@ public interface BoardReposiroty extends JpaRepository<BoardEntity, Long> {
     /**
      * 상세조회
      */
+    @Query("select board from BoardEntity as board where board.boardId = :boardId and board.deleteDate is null ")
     BoardEntity findByBoardId(@Param("boardId") Long boardId);
 
     /**

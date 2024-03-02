@@ -27,5 +27,5 @@ public interface BoardReactionRepositoty extends JpaRepository<BoardReactionEnti
             "set reaction.reactionEntity.reactionId = :reactionId, reaction.updateDate = :updateDate, reaction.updateBy = :updateBy " +
             "where reaction.boardReactionId = :boardReactionId and reaction.userId = :userId"
     )
-    int updateReaction(@Param("boardReactionId") Long boardReactionId, @Param("userId") Long userId, @Param("reactionId") Long reactionId, @Param("updateDate") LocalDateTime updateDate, @Param("updateBy") String updateBy);
+    int updateReaction(@Param("boardReactionId") Long boardReactionId, @Param("userId") Long userId, @Param("reactionId") Integer reactionId, @Param("updateDate") LocalDateTime updateDate, @Param("updateBy") String updateBy);
 }

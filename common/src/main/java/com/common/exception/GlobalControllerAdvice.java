@@ -14,7 +14,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(JApplicationException.class)
     public ResponseEntity<?> applicationHandler(JApplicationException e) {
-        e.printStackTrace();
+        log.error(e.getResultMessage());
         return CommonResponseDto.error(e.getResultCode(), e.getResultMessage());
     }
 

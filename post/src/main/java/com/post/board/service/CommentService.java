@@ -1,10 +1,11 @@
 package com.post.board.service;
 
-import com.common.entity.BoardEntity;
-import com.common.entity.CommentEntity;
+import com.common.entity.*;
 import com.common.exception.JApplicationException;
 import com.post.board.dto.*;
+import com.post.board.repository.CommentReactionRepositoty;
 import com.post.board.repository.CommentReposiroty;
+import com.post.common.configuration.util.CryptoUtil;
 import com.post.common.feign.UserInfoFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,8 @@ public class CommentService {
     private final UserInfoFeignClient userInfoFeignClient;
 
     private final CommentReposiroty commentReposiroty;
+
+    private final CommentReactionRepositoty commentReactionRepositoty;
 
     /**
      * 댓글, 대댓글 등록
@@ -126,6 +129,104 @@ public class CommentService {
         }
 
         commentReposiroty.deleteCommnt(commentId, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+
+    }
+
+    /**
+     * 좋아요
+     */
+    @Transactional
+    public void commnetLike(Long commnetId, String header) throws Exception {
+
+        CommentEntity commnt = commentReposiroty.findCommnt(commnetId);
+
+        if (commnt == null) {
+            throw new JApplicationException("없는 댓글입니다.");
+        }
+
+        // 헤더에 login_id 존재
+        String loginId = CryptoUtil.decrypt(header);
+
+        // 로그인 아이디로 사용자 정보 조회
+        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserLoginResult(header, loginId);
+        CommentEntity commnet = new CommentEntity(commnetId);
+
+        CommentReactionEntity commentReaction = commentReactionRepositoty.findByCommentEntityAndUserId(commnet, userResult.getBody().getResult().getUserId());
+
+        // null일경우 처음 좋아요, 좋아요 등록
+        if (commentReaction == null) {
+
+            CommentEntity commnetEntity = new CommentEntity(commnetId);
+            // 1 좋아요, 2 싫어요, 3 취소
+            ReactionEntity reactionEntity = new ReactionEntity(1);
+            CommentReactionEntity commentReactionEntity = new CommentReactionEntity(commnetEntity, reactionEntity, userResult.getBody().getResult().getUserId());
+
+            commentReactionRepositoty.save(commentReactionEntity);
+        }
+        // 1 이미 좋아요를 누르상태 : 취소로 상태 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 1) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 3, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        // 2 싫어요가 등록되어있는 상태 : 좋아요로 다시 상태 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 2) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 1, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        // 3 취소가 등록되어있는 상태 : 다시 좋아요로 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 3) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 1, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        else {
+            throw new JApplicationException("잘못된 상태 값");
+        }
+
+    }
+
+    /**
+     * 싫어요
+     */
+    @Transactional
+    public void commnetBad(Long commnetId, String header) throws Exception {
+
+        CommentEntity findComment = commentReposiroty.findCommnt(commnetId);
+
+        if (findComment == null) {
+            throw new JApplicationException("없는 댓글입니다.");
+        }
+
+        // 헤더에 login_id 존재
+        String loginId = CryptoUtil.decrypt(header);
+
+        // 로그인 아이디로 사용자 정보 조회
+        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserLoginResult(header, loginId);
+        CommentEntity commnet = new CommentEntity(commnetId);
+
+        CommentReactionEntity commentReaction = commentReactionRepositoty.findByCommentEntityAndUserId(commnet, userResult.getBody().getResult().getUserId());
+
+        // null일경우 처음 싫어요, 좋아요 등록
+        if (commentReaction == null) {
+
+            CommentEntity commnetEntity = new CommentEntity(commnetId);
+            // 1 좋아요, 2 싫어요, 3 취소
+            ReactionEntity reactionEntity = new ReactionEntity(2);
+            CommentReactionEntity commentReactionEntity = new CommentReactionEntity(commnetEntity, reactionEntity, userResult.getBody().getResult().getUserId());
+
+            commentReactionRepositoty.save(commentReactionEntity);
+        }
+        // 2 이미 싫어요를 누르상태 : 취소로 상태 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 2) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 3, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        // 1 좋아요가 등록되어있는 상태 : 싫어요로 다시 상태 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 1) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 2, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        // 3 취소가 등록되어있는 상태 : 다시 싫어요로 변경
+        else if (commentReaction.getReactionEntity().getReactionId() == 3) {
+            commentReactionRepositoty.updateReaction(commentReaction.getCommentReactionId(), userResult.getBody().getResult().getUserId(), 2, LocalDateTime.now(), "user_id : " + userResult.getBody().getResult().getUserId());
+        }
+        else {
+            throw new JApplicationException("잘못된 상태 값");
+        }
 
     }
 }

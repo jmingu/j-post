@@ -113,5 +113,36 @@ public class CommentRestController {
         return CommonResponseDto.success(resultMap);
     }
 
+    /**
+     * 좋아요
+     */
+    @PostMapping("/comments/{commnetId}/like")
+    public ResponseEntity<CommonResponseDto> commentLike(@PathVariable Long commnetId, HttpServletRequest request) throws Exception {
+        // 헤더 정보
+        final String header = request.getHeader("X-Auth-Status");
+
+        commentService.commnetLike(commnetId, header);
+        Map resultMap = new HashMap<>();
+        resultMap.put("commnetId", commnetId);
+
+        return CommonResponseDto.success(resultMap);
+    }
+
+    /**
+     * 싫어요
+     */
+    @PostMapping("/comments/{commnetId}/bad")
+    public ResponseEntity<CommonResponseDto> commentBad(@PathVariable Long commnetId, HttpServletRequest request) throws Exception {
+        // 헤더 정보
+        final String header = request.getHeader("X-Auth-Status");
+
+        commentService.commnetBad(commnetId, header);
+
+        Map resultMap = new HashMap<>();
+        resultMap.put("commnetId", commnetId);
+
+        return CommonResponseDto.success(resultMap);
+    }
+
 
 }

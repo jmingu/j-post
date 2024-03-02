@@ -18,7 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -102,8 +104,12 @@ public class BoardRestController {
         final String header = request.getHeader("X-Auth-Status");
 
         boardService.deleteBoard(boardId, header);
+        Map resultMap = new HashMap<>();
+        resultMap.put("boardId", boardId);
 
-        return CommonResponseDto.success(boardId);
+        return CommonResponseDto.success(resultMap);
+
+
     }
 
     /**
@@ -116,6 +122,26 @@ public class BoardRestController {
 
         boardService.boardLike(boardId, header);
 
-        return CommonResponseDto.success(boardId);
+        Map resultMap = new HashMap<>();
+        resultMap.put("boardId", boardId);
+
+        return CommonResponseDto.success(resultMap);
+
+    }
+
+    /**
+     * 싫어요
+     */
+    @PostMapping("/borads/{boardId}/bad")
+    public ResponseEntity<CommonResponseDto> boardBad(@PathVariable Long boardId, HttpServletRequest request) throws Exception {
+        // 헤더 정보
+        final String header = request.getHeader("X-Auth-Status");
+
+        boardService.boardBad(boardId, header);
+
+        Map resultMap = new HashMap<>();
+        resultMap.put("boardId", boardId);
+
+        return CommonResponseDto.success(resultMap);
     }
 }

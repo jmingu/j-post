@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 public class ReactionEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reactionId;
+    private Integer reactionId;
 
     private String reaction;
 
-    public ReactionEntity(Long reactionId) {
+    public ReactionEntity(Integer reactionId) {
         this.reactionId = reactionId;
     }
 
