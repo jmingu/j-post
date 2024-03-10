@@ -1,7 +1,7 @@
 package com.post.board.repository;
 
 import com.common.entity.CommentEntity;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,8 +25,24 @@ public interface CommentReposiroty extends JpaRepository<CommentEntity, Long> {
     /**
      * 댓글 리스트 조회
      */
-    @Query("select commnt from CommentEntity commnt where commnt.boardEntity.boardId = :boardId and commnt.deleteDate is null and commnt.parentCommentId is null")
-    List<CommentEntity> findCommntList(@Param("boardId") Long boardId, Pageable pageable);
+    @Query("select commnt " +
+            "from CommentEntity commnt " +
+            "where commnt.boardEntity.boardId = :boardId " +
+            "and commnt.deleteDate is null " +
+            "and commnt.parentCommentId is null"
+    )
+    Page<CommentEntity> findCommntList(@Param("boardId") Long boardId, Pageable pageable);
+
+    /**
+     * 대댓글 리스트 조회
+     */
+    @Query("select commnt " +
+            "from CommentEntity commnt " +
+            "where commnt.boardEntity.boardId = :boardId " +
+            "and commnt.deleteDate is null " +
+            "and commnt.parentCommentId = :parentCommentId"
+    )
+    Page<CommentEntity> findReCommntList(@Param("boardId") Long boardId, @Param("parentCommentId") Long parentCommentId, Pageable pageable);
 
     /**
      * 댓글 수정

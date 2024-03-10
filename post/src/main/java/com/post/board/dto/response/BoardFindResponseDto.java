@@ -1,15 +1,14 @@
-package com.post.board.dto;
+package com.post.board.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Builder
-public class BoardFindDto {
+public class BoardFindResponseDto {
 
     private Long boardId;
     private String nickname;

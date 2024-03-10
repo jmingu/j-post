@@ -10,4 +10,5 @@ import java.util.List;
 @Builder
 public class CommentListResponseDto {
     private List<CommentFindDto> commentList;
+    private long totalComment;
 }

@@ -25,6 +25,7 @@ public class CryptoUtil {
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES"));
         byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(value));
+
         return new String(decrypted, StandardCharsets.UTF_8);
     }
 }

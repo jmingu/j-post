@@ -11,6 +11,7 @@ public class CommentFindDto {
     private Long commentId;
     private String content;
     private String nickname;
-    private LocalDateTime createDate;
+    private String createDate;
+    private Boolean editEnable;
 
 }

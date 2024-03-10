@@ -36,7 +36,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         // 인증이 증명된 헤더
         final String header = request.getHeader("X-Auth-Status");
-
+        log.debug("post header ==> {}", header);
         if (header == null ) {
             log.error("Error header");
             filterChain.doFilter(request, response);
@@ -46,11 +46,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
 
             log.debug("header ==> {}", header);
-            String decrypt = CryptoUtil.decrypt(header);
+            String userId = CryptoUtil.decrypt(header);
 
             // controller에서 사용자 정보 조회할 수 있음(로그인아이디)
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    decrypt, null, null
+                    userId, null, null
             );
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

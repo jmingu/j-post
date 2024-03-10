@@ -6,7 +6,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class BoardCreateDto {
-    private String loginId;
+    private Long userId;
     private String title;
     private String content;
 }

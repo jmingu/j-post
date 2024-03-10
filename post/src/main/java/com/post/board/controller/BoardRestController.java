@@ -5,7 +5,9 @@ import com.common.dto.CommonResponseDto;
 import com.post.board.dto.BoardCreateDto;
 import com.post.board.dto.BoardEditDto;
 import com.post.board.dto.BoardFindDto;
+import com.post.board.dto.BoardFindListDto;
 import com.post.board.dto.request.BoardRequestDto;
+import com.post.board.dto.response.BoardFindResponseDto;
 import com.post.board.dto.response.BoardListResponseDto;
 import com.post.board.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +42,13 @@ public class BoardRestController {
 
         log.debug("principal ==> {}", principal.getName());
         BoardCreateDto boardCreateDto = BoardCreateDto.builder()
-                .loginId(principal.getName())
+                .userId(principal.getName() == null ? null : Long.parseLong(principal.getName()))
                 .title(boardRequestDto.getTitle())
                 .content(boardRequestDto.getContent())
                 .build();
 
         boardService.createBoard(boardCreateDto, header);
+
         return CommonResponseDto.success(boardRequestDto);
     }
 
@@ -56,23 +60,41 @@ public class BoardRestController {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "boardId"));
-        List<BoardFindDto> boardList = boardService.findBoard(pageable, header);
+        Pageable pageable = PageRequest.of((page-1), 10, Sort.by(Sort.Direction.DESC, "boardId"));
 
-        return CommonResponseDto.success(BoardListResponseDto.builder().boardList(boardList).build());
+        BoardFindListDto board = boardService.findBoard(pageable, header);
+
+        return CommonResponseDto.success(
+                BoardListResponseDto.builder()
+                        .boardList(board.getBoardFindDtos())
+                        .totalBoard(board.getTotalBoard())
+                        .build()
+        );
     }
 
     /**
      * 상세조회
      */
     @GetMapping("/borads/{boardId}")
-    public ResponseEntity<CommonResponseDto> findByBoardId(@PathVariable Long boardId, HttpServletRequest request) {
+    public ResponseEntity<CommonResponseDto> findByBoardId(@PathVariable Long boardId, HttpServletRequest request) throws Exception {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
         BoardFindDto boardDetail = boardService.findByBoardId(boardId, header);
 
-        return CommonResponseDto.success(boardDetail);
+        BoardFindResponseDto boardFindResponseDto = BoardFindResponseDto.builder()
+                .boardId(boardDetail.getBoardId())
+                .nickname(boardDetail.getNickname())
+                .title(boardDetail.getTitle())
+                .content(boardDetail.getContent())
+                .viewCount(boardDetail.getViewCount())
+                .createDate(boardDetail.getCreateDate())
+                .editEnable(boardDetail.getEditEnable())
+                .build();
+
+
+
+        return CommonResponseDto.success(boardFindResponseDto);
     }
 
     /**

@@ -10,4 +10,5 @@ import java.util.List;
 @Builder
 public class BoardListResponseDto {
     private List<BoardFindDto> boardList;
+    private long totalBoard;
 }

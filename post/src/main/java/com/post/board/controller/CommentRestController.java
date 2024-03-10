@@ -2,10 +2,7 @@ package com.post.board.controller;
 
 
 import com.common.dto.CommonResponseDto;
-import com.post.board.dto.CommentCreateDto;
-import com.post.board.dto.CommentEditDto;
-import com.post.board.dto.CommentFindDto;
-import com.post.board.dto.RepliesCreateDto;
+import com.post.board.dto.*;
 import com.post.board.dto.request.CommentRequestDto;
 import com.post.board.dto.response.CommentListResponseDto;
 import com.post.board.service.CommentService;
@@ -61,12 +58,34 @@ public class CommentRestController {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "commentId"));
+        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
 
-        List<CommentFindDto> comment = commentService.findComment(boardId, pageable, header);
+        CommentFindListDto comment = commentService.findComment(boardId, pageable, header);
 
         CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
-                .commentList(comment)
+                .commentList(comment.getCommentFindDtos())
+                .totalComment(comment.getTotalComment())
+                .build();
+
+        return CommonResponseDto.success(commentListResponseDto);
+    }
+
+    /**
+     * 대댓글 조회
+     */
+    @GetMapping("/borads/{boardId}/comments/{commentId}")
+    public ResponseEntity<CommonResponseDto> findReComment(@PathVariable Long boardId, @PathVariable Long commentId, @RequestParam int page, HttpServletRequest request) throws Exception {
+
+        // 헤더 정보
+        final String header = request.getHeader("X-Auth-Status");
+
+        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
+
+        CommentFindListDto comment = commentService.findReComment(boardId,commentId, pageable, header);
+
+        CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
+                .commentList(comment.getCommentFindDtos())
+                .totalComment(comment.getTotalComment())
                 .build();
 
         return CommonResponseDto.success(commentListResponseDto);
