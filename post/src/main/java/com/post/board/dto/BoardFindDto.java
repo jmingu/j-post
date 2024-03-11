@@ -18,4 +18,6 @@ public class BoardFindDto {
     private long viewCount;
     private String createDate;
     private Boolean editEnable;
+    private long likeCount;
+    private long badCount;
 }

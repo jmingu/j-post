@@ -13,5 +13,7 @@ public class CommentFindDto {
     private String nickname;
     private String createDate;
     private Boolean editEnable;
+    private long likeCount;
+    private long badCount;
 
 }

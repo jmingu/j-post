@@ -22,6 +22,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +79,15 @@ public class CommentService {
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
 
         Page<CommentEntity> commntList = commentReposiroty.findCommntList(boardId, pageable);
+        log.debug("commntList ==> {}", userId);
+
+        List<Long> commentIdList = commntList.getContent().stream().map(commentEntity -> commentEntity.getCommentId()).collect(Collectors.toList());
+
+        // 좋아요
+        List<CommentLikeBadCountDto> likeCount = commentReactionRepositoty.findCommentLikeBadCount(commentIdList, 1);
+        // 싫어요
+        List<CommentLikeBadCountDto> badCount = commentReactionRepositoty.findCommentLikeBadCount(commentIdList, 2);
+
 
         List<CommentFindDto> commentFindDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -86,12 +97,27 @@ public class CommentService {
             ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
             log.debug("commentEntity ==> {}", commentEntity.getContent());
 
+            long like = 0;
+            for (CommentLikeBadCountDto commentLikeBadCountDto : likeCount) {
+                if (commentLikeBadCountDto.getCommentId() == commentEntity.getCommentId()) {
+                    like = commentLikeBadCountDto.getCount();
+                }
+            }
+
+            long bad = 0;
+            for (CommentLikeBadCountDto commentLikeBadCountDto : badCount) {
+                if (commentLikeBadCountDto.getCommentId() == commentEntity.getCommentId()) {
+                    bad = commentLikeBadCountDto.getCount();
+                }
+            }
             CommentFindDto commentFindDto = CommentFindDto.builder()
                     .commentId(commentEntity.getCommentId())
                     .content(commentEntity.getContent())
                     .nickname(userResult.getBody().getResult().getNickname())
                     .createDate(commentEntity.getCreateDate().format(formatter))
                     .editEnable(userId == commentEntity.getUserId() ? true : false)
+                    .likeCount(like)
+                    .badCount(bad)
                     .build();
 
             commentFindDtos.add(commentFindDto);

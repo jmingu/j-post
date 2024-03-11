@@ -101,6 +101,15 @@ public class BoardService {
         // 게시물 조회
         BoardEntity boardEntity = boardReposiroty.findByBoardId(boardId);
 
+        List<Long> boardIdList = new ArrayList<>();
+        boardIdList.add(boardEntity.getBoardId());
+
+        // 좋아요
+        List<BoardLikeBadCountDto> boardLike = boardReactionRepositoty.findBoardLikeBadCount(boardIdList, 1);
+        log.debug("boardLike ==> {}", boardLike);
+        // 싫어요
+        List<BoardLikeBadCountDto> boardBad = boardReactionRepositoty.findBoardLikeBadCount(boardIdList, 2);
+        log.debug("boardBad ==> {}", boardBad);
         // 사용자 조회
         ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
 
@@ -134,6 +143,8 @@ public class BoardService {
                 .viewCount(boardEntity.getViewCnt() == null ? 0 : boardEntity.getViewCnt())
                 .createDate(boardEntity.getCreateDate().format(formatter))
                 .editEnable(boardEntity.getUserId() == userId ? true : false)
+                .likeCount(boardLike.size() == 0 ? 0 : boardLike.get(0).getCount())
+                .badCount(boardBad.size() == 0 ? 0 : boardBad.get(0).getCount())
                 .build();
 
         return boardFindDto;

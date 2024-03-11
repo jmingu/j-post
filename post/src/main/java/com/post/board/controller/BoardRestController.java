@@ -90,6 +90,8 @@ public class BoardRestController {
                 .viewCount(boardDetail.getViewCount())
                 .createDate(boardDetail.getCreateDate())
                 .editEnable(boardDetail.getEditEnable())
+                .likeCount(boardDetail.getLikeCount())
+                .badCount(boardDetail.getBadCount())
                 .build();
 
 
