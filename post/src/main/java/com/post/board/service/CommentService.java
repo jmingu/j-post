@@ -88,6 +88,8 @@ public class CommentService {
         // 싫어요
         List<CommentLikeBadCountDto> badCount = commentReactionRepositoty.findCommentLikeBadCount(commentIdList, 2);
 
+        // 좋아요 / 싫어요 클릭여부
+        List<CommentReactionEntity> commentLikeBadClick = commentReactionRepositoty.findCommentLikeBadClick(commentIdList, userId);
 
         List<CommentFindDto> commentFindDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -97,6 +99,7 @@ public class CommentService {
             ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
             log.debug("commentEntity ==> {}", commentEntity.getContent());
 
+            // 좋아요 카운트
             long like = 0;
             for (CommentLikeBadCountDto commentLikeBadCountDto : likeCount) {
                 if (commentLikeBadCountDto.getCommentId() == commentEntity.getCommentId()) {
@@ -104,12 +107,28 @@ public class CommentService {
                 }
             }
 
+            // 싫어요 카운트
             long bad = 0;
             for (CommentLikeBadCountDto commentLikeBadCountDto : badCount) {
                 if (commentLikeBadCountDto.getCommentId() == commentEntity.getCommentId()) {
                     bad = commentLikeBadCountDto.getCount();
                 }
             }
+
+            boolean likeClick = false;
+            boolean badClick = false;
+            // 좋아요 / 싫어요 클릭여부
+            for (CommentReactionEntity commentReactionEntity : commentLikeBadClick) {
+                if (commentEntity.getCommentId() == commentReactionEntity.getCommentEntity().getCommentId()) {
+                    // 좋아요
+                    if (commentReactionEntity.getReactionEntity().getReactionId() == 1) {
+                        likeClick = true;
+                    } else {
+                        badClick = true;
+                    }
+                }
+            }
+
             CommentFindDto commentFindDto = CommentFindDto.builder()
                     .commentId(commentEntity.getCommentId())
                     .content(commentEntity.getContent())
@@ -118,6 +137,8 @@ public class CommentService {
                     .editEnable(userId == commentEntity.getUserId() ? true : false)
                     .likeCount(like)
                     .badCount(bad)
+                    .likeClick(likeClick)
+                    .badClick(badClick)
                     .build();
 
             commentFindDtos.add(commentFindDto);
