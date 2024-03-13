@@ -92,9 +92,9 @@ public class BoardRestController {
                 .editEnable(boardDetail.getEditEnable())
                 .likeCount(boardDetail.getLikeCount())
                 .badCount(boardDetail.getBadCount())
+                .likeClick(boardDetail.getLikeClick())
+                .badClick(boardDetail.getBadClick())
                 .build();
-
-
 
         return CommonResponseDto.success(boardFindResponseDto);
     }

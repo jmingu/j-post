@@ -52,6 +52,7 @@ public interface CommentReactionRepositoty extends JpaRepository<CommentReaction
                 "reaction " +
             "from CommentReactionEntity reaction " +
             "where reaction.commentEntity.commentId in :commentIdList " +
-            "and reaction.userId = :userId")
+            "and reaction.userId = :userId"
+    )
     List<CommentReactionEntity> findCommentLikeBadClick(@Param("commentIdList") List<Long> commentIdList, long userId);
 }

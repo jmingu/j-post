@@ -73,12 +73,22 @@ public class CommentService {
     /**
      * 댓글 조회
      */
-    public CommentFindListDto findComment(Long boardId, Pageable pageable, String header) throws Exception {
+    public CommentFindListDto findComment(Long boardId, Long commentId, Pageable pageable, String header) throws Exception {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
 
-        Page<CommentEntity> commntList = commentReposiroty.findCommntList(boardId, pageable);
+        Page<CommentEntity> commntList;
+
+        // 댓글조회
+        if (commentId == null) {
+            commntList = commentReposiroty.findCommntList(boardId, pageable);
+        }
+        // 대댓글 조회
+        else {
+           commntList = commentReposiroty.findReCommntList(boardId, commentId, pageable);
+        }
+
         log.debug("commntList ==> {}", userId);
 
         List<Long> commentIdList = commntList.getContent().stream().map(commentEntity -> commentEntity.getCommentId()).collect(Collectors.toList());
@@ -115,16 +125,19 @@ public class CommentService {
                 }
             }
 
-            boolean likeClick = false;
-            boolean badClick = false;
+            Boolean likeClick = null;
+            Boolean badClick = null;
             // 좋아요 / 싫어요 클릭여부
             for (CommentReactionEntity commentReactionEntity : commentLikeBadClick) {
                 if (commentEntity.getCommentId() == commentReactionEntity.getCommentEntity().getCommentId()) {
                     // 좋아요
                     if (commentReactionEntity.getReactionEntity().getReactionId() == 1) {
                         likeClick = true;
-                    } else {
+                    } else if (commentReactionEntity.getReactionEntity().getReactionId() == 2) {
                         badClick = true;
+                    } else {
+                        likeClick = false;
+                        badClick = false;
                     }
                 }
             }
@@ -153,43 +166,43 @@ public class CommentService {
         return commentFindListDto;
     }
 
-    /**
-     * 대댓글 조회
-     */
-    public CommentFindListDto findReComment(Long boardId, Long commentId,Pageable pageable, String header) throws Exception {
-
-        // 헤더에 user_id 존재
-        long userId = Long.parseLong(CryptoUtil.decrypt(header));
-
-        Page<CommentEntity> reCommntList = commentReposiroty.findReCommntList(boardId, commentId, pageable);
-
-        List<CommentFindDto> commentFindDtos = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-
-        for (CommentEntity commentEntity : reCommntList.getContent()) {
-            // todo 리스트를 한번에 가져올 수 있는 방안 찾기
-            ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
-            log.debug("commentEntity ==> {}", commentEntity.getContent());
-
-            CommentFindDto commentFindDto = CommentFindDto.builder()
-                    .commentId(commentEntity.getCommentId())
-                    .content(commentEntity.getContent())
-                    .nickname(userResult.getBody().getResult().getNickname())
-                    .createDate(commentEntity.getCreateDate().format(formatter))
-                    .editEnable(userId == commentEntity.getUserId() ? true : false)
-                    .build();
-
-            commentFindDtos.add(commentFindDto);
-
-        }
-
-        CommentFindListDto commentFindListDto = CommentFindListDto.builder()
-                .totalComment(reCommntList.getTotalElements())
-                .commentFindDtos(commentFindDtos)
-                .build();
-
-        return commentFindListDto;
-    }
+//    /**
+//     * 대댓글 조회
+//     */
+//    public CommentFindListDto findReComment(Long boardId, Long commentId,Pageable pageable, String header) throws Exception {
+//
+//        // 헤더에 user_id 존재
+//        long userId = Long.parseLong(CryptoUtil.decrypt(header));
+//
+//        Page<CommentEntity> reCommntList = commentReposiroty.findReCommntList(boardId, commentId, pageable);
+//
+//        List<CommentFindDto> commentFindDtos = new ArrayList<>();
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+//
+//        for (CommentEntity commentEntity : reCommntList.getContent()) {
+//            // todo 리스트를 한번에 가져올 수 있는 방안 찾기
+//            ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
+//            log.debug("commentEntity ==> {}", commentEntity.getContent());
+//
+//            CommentFindDto commentFindDto = CommentFindDto.builder()
+//                    .commentId(commentEntity.getCommentId())
+//                    .content(commentEntity.getContent())
+//                    .nickname(userResult.getBody().getResult().getNickname())
+//                    .createDate(commentEntity.getCreateDate().format(formatter))
+//                    .editEnable(userId == commentEntity.getUserId() ? true : false)
+//                    .build();
+//
+//            commentFindDtos.add(commentFindDto);
+//
+//        }
+//
+//        CommentFindListDto commentFindListDto = CommentFindListDto.builder()
+//                .totalComment(reCommntList.getTotalElements())
+//                .commentFindDtos(commentFindDtos)
+//                .build();
+//
+//        return commentFindListDto;
+//    }
 
     /**
      * 댓글 수정
@@ -248,6 +261,9 @@ public class CommentService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
         CommentEntity commnet = new CommentEntity(commnetId);
 
@@ -295,6 +311,9 @@ public class CommentService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
         CommentEntity commnet = new CommentEntity(commnetId);
 

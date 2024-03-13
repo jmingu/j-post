@@ -15,7 +15,7 @@ public class CommentFindDto {
     private boolean editEnable;
     private long likeCount;
     private long badCount;
-    private boolean likeClick;
-    private boolean badClick;
+    private Boolean likeClick;
+    private Boolean badClick;
 
 }

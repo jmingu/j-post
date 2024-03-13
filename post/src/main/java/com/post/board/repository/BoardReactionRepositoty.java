@@ -2,6 +2,7 @@ package com.post.board.repository;
 
 import com.common.entity.BoardEntity;
 import com.common.entity.BoardReactionEntity;
+import com.common.entity.CommentReactionEntity;
 import com.post.board.dto.BoardLikeBadCountDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -42,4 +43,15 @@ public interface BoardReactionRepositoty extends JpaRepository<BoardReactionEnti
             "group by reaction.boardEntity.boardId"
     )
     List<BoardLikeBadCountDto> findBoardLikeBadCount(@Param("boardIdList") List<Long> boardIdList, long reactionId);
+
+    /**
+     * 좋아요 / 싫어요 클릭 여부
+     */
+    @Query("select " +
+            "reaction " +
+            "from BoardReactionEntity reaction " +
+            "where reaction.boardEntity.boardId in :boardIdList " +
+            "and reaction.userId = :userId"
+    )
+    List<BoardReactionEntity> findBoardLikeBadClick(@Param("boardIdList") List<Long> boardIdList, long userId);
 }

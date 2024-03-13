@@ -20,4 +20,6 @@ public class BoardFindDto {
     private Boolean editEnable;
     private long likeCount;
     private long badCount;
+    private Boolean likeClick;
+    private Boolean badClick;
 }

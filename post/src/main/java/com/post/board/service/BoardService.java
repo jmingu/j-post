@@ -90,6 +90,9 @@ public class BoardService {
      */
     @Transactional
     public BoardFindDto findByBoardId(Long boardId, String header) throws Exception {
+        // userId가 음수면 로그인 안한 사용자
+        // 헤더에 user_id 존재
+        long userId = Long.parseLong(CryptoUtil.decrypt(header));
 
         // 조회수 +1
         try {
@@ -110,13 +113,14 @@ public class BoardService {
         // 싫어요
         List<BoardLikeBadCountDto> boardBad = boardReactionRepositoty.findBoardLikeBadCount(boardIdList, 2);
         log.debug("boardBad ==> {}", boardBad);
+
+        // 좋아요 / 싫어요 클릭여부
+        List<BoardReactionEntity> boardLikeBadClick = boardReactionRepositoty.findBoardLikeBadClick(boardIdList, userId);
+
         // 사용자 조회
         ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
 
-        long userId = Long.parseLong(CryptoUtil.decrypt(header));
-        log.debug("userId ==> {}" , userId);
 
-        // userId가 음수면 로그인 안한 사용장
         // 조회이력 등록, 조회이력은 게시물당 1번
         if (userId > 0) {
             try {
@@ -134,6 +138,23 @@ public class BoardService {
             }
         }
 
+        Boolean likeClick = null;
+        Boolean badClick = null;
+        // 좋아요 / 싫어요 클릭여부
+        for (BoardReactionEntity boardReactionEntity : boardLikeBadClick) {
+            if (boardEntity.getBoardId() == boardReactionEntity.getBoardEntity().getBoardId()) {
+                // 좋아요
+                if (boardReactionEntity.getReactionEntity().getReactionId() == 1) {
+                    likeClick = true;
+                } else if (boardReactionEntity.getReactionEntity().getReactionId() == 2) {
+                    badClick = true;
+                } else {
+                    likeClick = false;
+                    badClick = false;
+                }
+            }
+        }
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         BoardFindDto boardFindDto = BoardFindDto.builder()
                 .boardId(boardEntity.getBoardId())
@@ -145,6 +166,8 @@ public class BoardService {
                 .editEnable(boardEntity.getUserId() == userId ? true : false)
                 .likeCount(boardLike.size() == 0 ? 0 : boardLike.get(0).getCount())
                 .badCount(boardBad.size() == 0 ? 0 : boardBad.get(0).getCount())
+                .likeClick(likeClick)
+                .badClick(badClick)
                 .build();
 
         return boardFindDto;
@@ -217,6 +240,9 @@ public class BoardService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
         BoardEntity board = new BoardEntity(boardId);
 
@@ -264,6 +290,9 @@ public class BoardService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
         BoardEntity board = new BoardEntity(boardId);
 

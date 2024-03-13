@@ -53,14 +53,14 @@ public class CommentRestController {
      * 댓글 조회
      */
     @GetMapping("/borads/{boardId}/comments")
-    public ResponseEntity<CommonResponseDto> findComment(@PathVariable Long boardId, @RequestParam int page, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CommonResponseDto> findComment(@PathVariable Long boardId, @RequestParam(required = false) Long commentId, @RequestParam int page, HttpServletRequest request) throws Exception {
 
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
         Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
 
-        CommentFindListDto comment = commentService.findComment(boardId, pageable, header);
+        CommentFindListDto comment = commentService.findComment(boardId, commentId, pageable, header);
 
         CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
                 .commentList(comment.getCommentFindDtos())
@@ -71,24 +71,24 @@ public class CommentRestController {
     }
 
     /**
-     * 대댓글 조회
+     * 대댓글 조회(삭제예정)
      */
     @GetMapping("/borads/{boardId}/comments/{commentId}")
     public ResponseEntity<CommonResponseDto> findReComment(@PathVariable Long boardId, @PathVariable Long commentId, @RequestParam int page, HttpServletRequest request) throws Exception {
+//
+//        // 헤더 정보
+//        final String header = request.getHeader("X-Auth-Status");
+//
+//        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
+//
+//        CommentFindListDto comment = commentService.findReComment(boardId,commentId, pageable, header);
+//
+//        CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
+//                .commentList(comment.getCommentFindDtos())
+//                .totalComment(comment.getTotalComment())
+//                .build();
 
-        // 헤더 정보
-        final String header = request.getHeader("X-Auth-Status");
-
-        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
-
-        CommentFindListDto comment = commentService.findReComment(boardId,commentId, pageable, header);
-
-        CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
-                .commentList(comment.getCommentFindDtos())
-                .totalComment(comment.getTotalComment())
-                .build();
-
-        return CommonResponseDto.success(commentListResponseDto);
+        return CommonResponseDto.success(null);
     }
 
     /**
