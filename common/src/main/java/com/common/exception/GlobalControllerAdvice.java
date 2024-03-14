@@ -21,12 +21,12 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> exceptionHandler(RuntimeException e) {
         e.printStackTrace();
-        return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "server error");
+        return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "SERVER ERROR");
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handlerException(Exception e) {
         e.printStackTrace();
-        return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "server error");
+        return CommonResponseDto.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "SERVER ERROR");
     }
 }

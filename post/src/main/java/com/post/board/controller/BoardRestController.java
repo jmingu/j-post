@@ -146,8 +146,24 @@ public class BoardRestController {
 
         boardService.boardLike(boardId, header);
 
+        BoardFindDto boardDetail = boardService.findByBoardId(boardId, header);
+
+        BoardFindResponseDto boardFindResponseDto = BoardFindResponseDto.builder()
+                .boardId(boardDetail.getBoardId())
+                .nickname(boardDetail.getNickname())
+                .title(boardDetail.getTitle())
+                .content(boardDetail.getContent())
+                .viewCount(boardDetail.getViewCount())
+                .createDate(boardDetail.getCreateDate())
+                .editEnable(boardDetail.getEditEnable())
+                .likeCount(boardDetail.getLikeCount())
+                .badCount(boardDetail.getBadCount())
+                .likeClick(boardDetail.getLikeClick())
+                .badClick(boardDetail.getBadClick())
+                .build();
+
         Map resultMap = new HashMap<>();
-        resultMap.put("boardId", boardId);
+        resultMap.put("boardDetail", boardDetail);
 
         return CommonResponseDto.success(resultMap);
 
@@ -163,8 +179,24 @@ public class BoardRestController {
 
         boardService.boardBad(boardId, header);
 
+        BoardFindDto boardDetail = boardService.findByBoardId(boardId, header);
+
+        BoardFindResponseDto boardFindResponseDto = BoardFindResponseDto.builder()
+                .boardId(boardDetail.getBoardId())
+                .nickname(boardDetail.getNickname())
+                .title(boardDetail.getTitle())
+                .content(boardDetail.getContent())
+                .viewCount(boardDetail.getViewCount())
+                .createDate(boardDetail.getCreateDate())
+                .editEnable(boardDetail.getEditEnable())
+                .likeCount(boardDetail.getLikeCount())
+                .badCount(boardDetail.getBadCount())
+                .likeClick(boardDetail.getLikeClick())
+                .badClick(boardDetail.getBadClick())
+                .build();
+
         Map resultMap = new HashMap<>();
-        resultMap.put("boardId", boardId);
+        resultMap.put("boardDetail", boardDetail);
 
         return CommonResponseDto.success(resultMap);
     }

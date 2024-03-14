@@ -5,6 +5,7 @@ import com.common.entity.BoardReactionEntity;
 import com.common.entity.CommentEntity;
 import com.common.entity.CommentReactionEntity;
 import com.post.board.dto.CommentLikeBadCountDto;
+import com.post.board.dto.CommentLikeBadReactionCountDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -55,4 +56,16 @@ public interface CommentReactionRepositoty extends JpaRepository<CommentReaction
             "and reaction.userId = :userId"
     )
     List<CommentReactionEntity> findCommentLikeBadClick(@Param("commentIdList") List<Long> commentIdList, long userId);
+
+    /**
+     * 좋아요 / 싫어요 클릭 여부
+     */
+    @Query(
+            "select " +
+                    "new com.post.board.dto.CommentLikeBadReactionCountDto(reaction.reactionEntity.reactionId, count(reaction)) " +
+            "from CommentReactionEntity reaction " +
+            "where reaction.commentEntity.commentId = :commentId " +
+            "group by reaction.reactionEntity.reactionId "
+    )
+    List<CommentLikeBadReactionCountDto> findCommentReactionCount(@Param("commentId") Long commentId);
 }

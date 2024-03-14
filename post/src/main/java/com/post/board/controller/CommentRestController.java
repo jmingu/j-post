@@ -60,7 +60,7 @@ public class CommentRestController {
 
         Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
 
-        CommentFindListDto comment = commentService.findComment(boardId, commentId, pageable, header);
+        CommentFindListDto comment = commentService.findCommentList(boardId, commentId, pageable, header);
 
         CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
                 .commentList(comment.getCommentFindDtos())
@@ -70,26 +70,6 @@ public class CommentRestController {
         return CommonResponseDto.success(commentListResponseDto);
     }
 
-    /**
-     * 대댓글 조회(삭제예정)
-     */
-    @GetMapping("/borads/{boardId}/comments/{commentId}")
-    public ResponseEntity<CommonResponseDto> findReComment(@PathVariable Long boardId, @PathVariable Long commentId, @RequestParam int page, HttpServletRequest request) throws Exception {
-//
-//        // 헤더 정보
-//        final String header = request.getHeader("X-Auth-Status");
-//
-//        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
-//
-//        CommentFindListDto comment = commentService.findReComment(boardId,commentId, pageable, header);
-//
-//        CommentListResponseDto commentListResponseDto = CommentListResponseDto.builder()
-//                .commentList(comment.getCommentFindDtos())
-//                .totalComment(comment.getTotalComment())
-//                .build();
-
-        return CommonResponseDto.success(null);
-    }
 
     /**
      * 댓글 수정
@@ -141,8 +121,11 @@ public class CommentRestController {
         final String header = request.getHeader("X-Auth-Status");
 
         commentService.commnetLike(commnetId, header);
+
+        CommentFindDto comment = commentService.findComment(commnetId, header);
+
         Map resultMap = new HashMap<>();
-        resultMap.put("commnetId", commnetId);
+        resultMap.put("comment", comment);
 
         return CommonResponseDto.success(resultMap);
     }
@@ -157,8 +140,10 @@ public class CommentRestController {
 
         commentService.commnetBad(commnetId, header);
 
+        CommentFindDto comment = commentService.findComment(commnetId, header);
+
         Map resultMap = new HashMap<>();
-        resultMap.put("commnetId", commnetId);
+        resultMap.put("comment", comment);
 
         return CommonResponseDto.success(resultMap);
     }
