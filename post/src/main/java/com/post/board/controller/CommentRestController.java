@@ -90,7 +90,12 @@ public class CommentRestController {
 
         commentService.editComment(commentEditDto, header);
 
-        return CommonResponseDto.success(commentRequestDto);
+        CommentFindDto comment = commentService.findComment(commnetId, header);
+
+        Map resultMap = new HashMap<>();
+        resultMap.put("comment", comment);
+
+        return CommonResponseDto.success(resultMap);
     }
 
     /**

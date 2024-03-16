@@ -247,11 +247,16 @@ public class CommentService {
     @Transactional
     public void editComment(CommentEditDto commentEditDto, String header) throws Exception {
 
+        // 헤더에 user_id 존재
+        long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
+
         // 댓글 조회
         CommentEntity commnt = commentReposiroty.findCommnt(commentEditDto.getCommentId());
 
-        // 헤더에 user_id 존재
-        long userId = Long.parseLong(CryptoUtil.decrypt(header));
+
         // 작성자인지 검증
         if (userId != commnt.getUserId()) {
             throw new JApplicationException("작성자만 수정할 수 있습니다.");
