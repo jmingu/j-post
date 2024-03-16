@@ -1,6 +1,10 @@
 package com.post.board.service;
 
-import com.common.entity.*;
+import com.common.dto.CommonResponseDto;
+import com.common.entity.BoardEntity;
+import com.common.entity.BoardHistoryEntity;
+import com.common.entity.BoardReactionEntity;
+import com.common.entity.ReactionEntity;
 import com.common.exception.JApplicationException;
 import com.post.board.dto.*;
 import com.post.board.repository.BoardHistoryReposiroty;
@@ -8,7 +12,6 @@ import com.post.board.repository.BoardReactionRepositoty;
 import com.post.board.repository.BoardReposiroty;
 import com.post.common.configuration.util.CryptoUtil;
 import com.post.common.feign.UserInfoFeignClient;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,13 +40,21 @@ public class BoardService {
      * 등록
      */
     @Transactional
-    public void createBoard(BoardCreateDto boardCreateDto, String header) {
+    public void createBoard(BoardCreateDto boardCreateDto, String header) throws Exception {
 
-        if (boardCreateDto.getUserId() == null) {
-            throw new JApplicationException("userId is null");
+        // 헤더에 user_id 존재
+        long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
         }
 
-        BoardEntity postEntity = new BoardEntity(boardCreateDto.getTitle(), boardCreateDto.getContent(), boardCreateDto.getUserId());
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
+
+        BoardEntity postEntity = new BoardEntity(boardCreateDto.getTitle(), boardCreateDto.getContent(), userId);
 
         // 저장
         boardReposiroty.save(postEntity);
@@ -62,7 +73,7 @@ public class BoardService {
 
         for (BoardEntity boardEntity : boardEntitys.getContent()) {
             // todo 리스트를 한번에 가져올 수 있는 방안 찾기
-            ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
+            ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
 
             // 엔티티를 바로 반환시키면 안좋음
             BoardFindDto boardFindDto = BoardFindDto.builder()
@@ -118,7 +129,7 @@ public class BoardService {
         List<BoardReactionEntity> boardLikeBadClick = boardReactionRepositoty.findBoardLikeBadClick(boardIdList, userId);
 
         // 사용자 조회
-        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
 
 
         // 조회이력 등록, 조회이력은 게시물당 1번
@@ -183,6 +194,16 @@ public class BoardService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
+
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
+
 
         // 작성자인지 검증
         if (userId != boardEntity.getUserId()) {
@@ -209,7 +230,15 @@ public class BoardService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
 
         // 작성자인지 검증
         if (userId != boardEntity.getUserId()) {
@@ -243,6 +272,13 @@ public class BoardService {
         if (userId < 0) {
             throw new JApplicationException("로그인이 필요합니다.");
         }
+
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
+
 
         BoardEntity board = new BoardEntity(boardId);
 
@@ -292,6 +328,12 @@ public class BoardService {
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
         if (userId < 0) {
             throw new JApplicationException("로그인이 필요합니다.");
+        }
+
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
         BoardEntity board = new BoardEntity(boardId);

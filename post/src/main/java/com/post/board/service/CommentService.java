@@ -1,5 +1,6 @@
 package com.post.board.service;
 
+import com.common.dto.CommonResponseDto;
 import com.common.entity.BoardEntity;
 import com.common.entity.CommentEntity;
 import com.common.entity.CommentReactionEntity;
@@ -23,7 +24,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +47,15 @@ public class CommentService {
 
         // 헤더에 user_id 존재
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
+
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
 
         // 댓글 등록 (대댓글 아님)
         if (commentCreateDto.getParentCommentId() == null) {
@@ -106,7 +115,7 @@ public class CommentService {
 
         for (CommentEntity commentEntity : commntList.getContent()) {
             // todo 리스트를 한번에 가져올 수 있는 방안 찾기
-            ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
+            ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
             log.debug("commentEntity ==> {}", commentEntity.getContent());
 
             // 좋아요 카운트
@@ -192,7 +201,7 @@ public class CommentService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
         // 유저서버 이름 가져오기
-        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
 
 
         // 좋아요  /  싫어요 카운트
@@ -253,9 +262,14 @@ public class CommentService {
             throw new JApplicationException("로그인이 필요합니다.");
         }
 
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
+
         // 댓글 조회
         CommentEntity commnt = commentReposiroty.findCommnt(commentEditDto.getCommentId());
-
 
         // 작성자인지 검증
         if (userId != commnt.getUserId()) {
@@ -270,20 +284,26 @@ public class CommentService {
      * 댓글 삭제
      */
     @Transactional
-    public void deleteComment(Long commentId, String loginId, String header) throws Exception {
+    public void deleteComment(Long commentId, String header) throws Exception {
+        // 헤더에 user_id 존재
+        long userId = Long.parseLong(CryptoUtil.decrypt(header));
+        if (userId < 0) {
+            throw new JApplicationException("로그인이 필요합니다.");
+        }
 
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
         // 댓글 조회
         CommentEntity commnt = commentReposiroty.findCommnt(commentId);
 
-        // 로그인 아이디로 user_id 찾기
-        ResponseEntity<UserResultDto> userResult = userInfoFeignClient.getUserLoginResult(header, loginId);
-
-        // 헤더에 user_id 존재
-        long userId = Long.parseLong(CryptoUtil.decrypt(header));
         // 작성자인지 검증
         if (userId != commnt.getUserId()) {
             throw new JApplicationException("작성자만 수정할 수 있습니다.");
         }
+
 
         commentReposiroty.deleteCommnt(commentId, LocalDateTime.now(), "user_id : " + userId);
 
@@ -307,7 +327,11 @@ public class CommentService {
             throw new JApplicationException("로그인이 필요합니다.");
         }
 
-//        CommentEntity commnet = new CommentEntity(commnetId);
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
+        }
 
         CommentReactionEntity commentReaction = commentReactionRepositoty.findByCommentEntityAndUserId(commnt, userId);
 
@@ -355,6 +379,12 @@ public class CommentService {
         long userId = Long.parseLong(CryptoUtil.decrypt(header));
         if (userId < 0) {
             throw new JApplicationException("로그인이 필요합니다.");
+        }
+
+        ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, userId);
+
+        if (userResult.getBody().getResult().getNickname() == null) {
+            throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
         CommentEntity commnet = new CommentEntity(commnetId);

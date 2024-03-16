@@ -107,9 +107,7 @@ public class CommentRestController {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        String loginId = CryptoUtil.decrypt(header);
-
-        commentService.deleteComment(commnetId, loginId, header);
+        commentService.deleteComment(commnetId, header);
 
         Map resultMap = new HashMap<>();
         resultMap.put("commnetId", commnetId);

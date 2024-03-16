@@ -35,7 +35,7 @@ public class BoardRestController {
      * 등록
      */
     @PostMapping("/borads")
-    public ResponseEntity<CommonResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, Principal principal, HttpServletRequest request) {
+    public ResponseEntity<CommonResponseDto> createBoard(@RequestBody BoardRequestDto boardRequestDto, Principal principal, HttpServletRequest request) throws Exception {
 
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
