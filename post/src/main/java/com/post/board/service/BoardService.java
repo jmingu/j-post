@@ -242,7 +242,7 @@ public class BoardService {
 
         // 작성자인지 검증
         if (userId != boardEntity.getUserId()) {
-            throw new JApplicationException("작성자만 수정할 수 있습니다.");
+            throw new JApplicationException("작성자만 삭제할 수 있습니다.");
         }
 
         // 삭제
