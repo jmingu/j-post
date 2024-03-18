@@ -74,8 +74,8 @@ public class CommentRestController {
     /**
      * 댓글 수정
      */
-    @PatchMapping("/comments/{commnetId}")
-    public ResponseEntity<CommonResponseDto> editComment(@PathVariable Long commnetId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) throws Exception {
+    @PatchMapping("/comments/{commentId}")
+    public ResponseEntity<CommonResponseDto> editComment(@PathVariable Long commentId, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) throws Exception {
 
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
@@ -83,14 +83,14 @@ public class CommentRestController {
         String loginId = CryptoUtil.decrypt(header);
 
         CommentEditDto commentEditDto = CommentEditDto.builder()
-                .commentId(commnetId)
+                .commentId(commentId)
                 .loginId(loginId)
                 .content(commentRequestDto.getContent())
                 .build();
 
         commentService.editComment(commentEditDto, header);
 
-        CommentFindDto comment = commentService.findComment(commnetId, header);
+        CommentFindDto comment = commentService.findComment(commentId, header);
 
         Map resultMap = new HashMap<>();
         resultMap.put("comment", comment);
@@ -101,16 +101,16 @@ public class CommentRestController {
     /**
      * 댓글 삭제
      */
-    @DeleteMapping("/comments/{commnetId}")
-    public ResponseEntity<CommonResponseDto> deleteComment(@PathVariable Long commnetId, HttpServletRequest request) throws Exception {
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<CommonResponseDto> deleteComment(@PathVariable Long commentId, HttpServletRequest request) throws Exception {
 
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        commentService.deleteComment(commnetId, header);
+        commentService.deleteComment(commentId, header);
 
         Map resultMap = new HashMap<>();
-        resultMap.put("commnetId", commnetId);
+        resultMap.put("commentId", commentId);
 
         return CommonResponseDto.success(resultMap);
     }
@@ -118,14 +118,14 @@ public class CommentRestController {
     /**
      * 좋아요
      */
-    @PostMapping("/comments/{commnetId}/like")
-    public ResponseEntity<CommonResponseDto> commentLike(@PathVariable Long commnetId, HttpServletRequest request) throws Exception {
+    @PostMapping("/comments/{commentId}/like")
+    public ResponseEntity<CommonResponseDto> commentLike(@PathVariable Long commentId, HttpServletRequest request) throws Exception {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        commentService.commnetLike(commnetId, header);
+        commentService.commnetLike(commentId, header);
 
-        CommentFindDto comment = commentService.findComment(commnetId, header);
+        CommentFindDto comment = commentService.findComment(commentId, header);
 
         Map resultMap = new HashMap<>();
         resultMap.put("comment", comment);
@@ -136,14 +136,14 @@ public class CommentRestController {
     /**
      * 싫어요
      */
-    @PostMapping("/comments/{commnetId}/bad")
-    public ResponseEntity<CommonResponseDto> commentBad(@PathVariable Long commnetId, HttpServletRequest request) throws Exception {
+    @PostMapping("/comments/{commentId}/bad")
+    public ResponseEntity<CommonResponseDto> commentBad(@PathVariable Long commentId, HttpServletRequest request) throws Exception {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        commentService.commnetBad(commnetId, header);
+        commentService.commnetBad(commentId, header);
 
-        CommentFindDto comment = commentService.findComment(commnetId, header);
+        CommentFindDto comment = commentService.findComment(commentId, header);
 
         Map resultMap = new HashMap<>();
         resultMap.put("comment", comment);

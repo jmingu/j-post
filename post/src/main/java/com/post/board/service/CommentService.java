@@ -197,7 +197,7 @@ public class CommentService {
         commentIdList.add(commentId);
         List<CommentReactionEntity> commentLikeBadClick = commentReactionRepositoty.findCommentLikeBadClick(commentIdList, userId);
 
-        log.debug("commentLikeBadClick ==> {}", commentLikeBadClick.get(0).getReactionEntity().getReactionId());
+//        log.debug("commentLikeBadClick ==> {}", commentLikeBadClick.get(0).getReactionEntity().getReactionId());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
         // 유저서버 이름 가져오기
