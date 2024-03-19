@@ -53,12 +53,12 @@ public class CommentRestController {
      * 댓글 조회
      */
     @GetMapping("/borads/{boardId}/comments")
-    public ResponseEntity<CommonResponseDto> findComment(@PathVariable Long boardId, @RequestParam(required = false) Long commentId, @RequestParam int page, HttpServletRequest request) throws Exception {
+    public ResponseEntity<CommonResponseDto> findComment(@PathVariable Long boardId, @RequestParam(required = false) Long commentId, @RequestParam int page, @RequestParam int size, HttpServletRequest request) throws Exception {
 
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        Pageable pageable = PageRequest.of((page-1), 2, Sort.by(Sort.Direction.DESC, "commentId"));
+        Pageable pageable = PageRequest.of((page-1), size, Sort.by(Sort.Direction.DESC, "commentId"));
 
         CommentFindListDto comment = commentService.findCommentList(boardId, commentId, pageable, header);
 

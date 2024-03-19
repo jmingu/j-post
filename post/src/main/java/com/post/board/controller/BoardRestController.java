@@ -56,11 +56,11 @@ public class BoardRestController {
      * 리스트 조회
      */
     @GetMapping("/borads")
-    public ResponseEntity<CommonResponseDto> findBoard(@RequestParam int page, HttpServletRequest request) {
+    public ResponseEntity<CommonResponseDto> findBoard(@RequestParam int page, @RequestParam int size, HttpServletRequest request) {
         // 헤더 정보
         final String header = request.getHeader("X-Auth-Status");
 
-        Pageable pageable = PageRequest.of((page-1), 10, Sort.by(Sort.Direction.DESC, "boardId"));
+        Pageable pageable = PageRequest.of((page-1), size, Sort.by(Sort.Direction.DESC, "boardId"));
 
         BoardFindListDto board = boardService.findBoard(pageable, header);
 
