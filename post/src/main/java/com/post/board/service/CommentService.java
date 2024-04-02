@@ -57,6 +57,21 @@ public class CommentService {
             throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
+        if (commentCreateDto.getContent() == null) {
+            log.error("content null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (commentCreateDto.getContent().length() == 0) {
+            log.error("content length null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (commentCreateDto.getContent().length() > 200) {
+            log.error("content length 200");
+            throw new JApplicationException("내용은 200자 이하로 입력해 주세요.");
+        }
+
         // 댓글 등록 (대댓글 아님)
         if (commentCreateDto.getParentCommentId() == null) {
             CommentEntity commentEntity = new CommentEntity(boardEntity, userId, commentCreateDto.getContent());
@@ -110,13 +125,15 @@ public class CommentService {
         // 좋아요 / 싫어요 클릭여부
         List<CommentReactionEntity> commentLikeBadClick = commentReactionRepositoty.findCommentLikeBadClick(commentIdList, userId);
 
+        // userId 리스트
+        List<Long> userIdList = commntList.stream().map(commentEntity -> commentEntity.getUserId()).collect(Collectors.toList());
+        ResponseEntity<CommonResponseDto<UserListDto>> userList = userInfoFeignClient.getUserList(header, userIdList);
+        List<UserDto> userListResponse = userList.getBody().getResult().getUserList();
+
         List<CommentFindDto> commentFindDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
         for (CommentEntity commentEntity : commntList.getContent()) {
-            // todo 리스트를 한번에 가져올 수 있는 방안 찾기
-            ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, commentEntity.getUserId());
-            log.debug("commentEntity ==> {}", commentEntity.getContent());
 
             // 좋아요 카운트
             long like = 0;
@@ -151,10 +168,18 @@ public class CommentService {
                 }
             }
 
+            // 닉네임 조회
+            String nickname = "";
+            for (UserDto userDto : userListResponse) {
+                if (userDto.getUserId().equals(commentEntity.getUserId())) {
+                    nickname = userDto.getNickname();
+                }
+            }
+
             CommentFindDto commentFindDto = CommentFindDto.builder()
                     .commentId(commentEntity.getCommentId())
                     .content(commentEntity.getContent())
-                    .nickname(userResult.getBody().getResult().getNickname())
+                    .nickname(nickname)
                     .createDate(commentEntity.getCreateDate().format(formatter))
                     .editEnable(userId == commentEntity.getUserId() ? true : false)
                     .likeCount(like)
@@ -268,6 +293,21 @@ public class CommentService {
             throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
+        if (commentEditDto.getContent() == null) {
+            log.error("content null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (commentEditDto.getContent().length() == 0) {
+            log.error("content length null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (commentEditDto.getContent().length() > 200) {
+            log.error("content length 200");
+            throw new JApplicationException("내용은 200자 이하로 입력해 주세요.");
+        }
+
         // 댓글 조회
         CommentEntity commnt = commentReposiroty.findCommnt(commentEditDto.getCommentId());
 
@@ -303,7 +343,6 @@ public class CommentService {
         if (userId != commnt.getUserId()) {
             throw new JApplicationException("작성자만 수정할 수 있습니다.");
         }
-
 
         commentReposiroty.deleteCommnt(commentId, LocalDateTime.now(), "user_id : " + userId);
 

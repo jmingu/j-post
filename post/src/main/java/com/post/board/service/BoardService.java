@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +55,36 @@ public class BoardService {
             throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
+        if (boardCreateDto.getTitle() == null) {
+            log.error("title null");
+            throw new JApplicationException("제목을 확인해 주세요.");
+        }
+
+        if (boardCreateDto.getTitle().length() == 0) {
+            log.error("title length null");
+            throw new JApplicationException("제목을 확인해 주세요.");
+        }
+
+        if (boardCreateDto.getTitle().length() > 20) {
+            log.error("title length 20");
+            throw new JApplicationException("제목은 20자 이하로 입력해 주세요.");
+        }
+
+        if (boardCreateDto.getContent() == null) {
+            log.error("content null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (boardCreateDto.getContent().length() == 0) {
+            log.error("content length null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (boardCreateDto.getContent().length() > 2000) {
+            log.error("content length 2000");
+            throw new JApplicationException("내용은 2000자 이하로 입력해 주세요.");
+        }
+
         BoardEntity postEntity = new BoardEntity(boardCreateDto.getTitle(), boardCreateDto.getContent(), userId);
 
         // 저장
@@ -71,16 +102,27 @@ public class BoardService {
         List<BoardFindDto> boardFindDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
+        // userId 리스트
+        List<Long> userIdList = boardEntitys.stream().map(boardEntity -> boardEntity.getUserId()).collect(Collectors.toList());
+        ResponseEntity<CommonResponseDto<UserListDto>> userList = userInfoFeignClient.getUserList(header, userIdList);
+        List<UserDto> userListResponse = userList.getBody().getResult().getUserList();
+
         for (BoardEntity boardEntity : boardEntitys.getContent()) {
-            // todo 리스트를 한번에 가져올 수 있는 방안 찾기
-            ResponseEntity<CommonResponseDto<UserDto>> userResult = userInfoFeignClient.getUserResult(header, boardEntity.getUserId());
+
+            // 닉네임 조회
+            String nickname = "";
+            for (UserDto userDto : userListResponse) {
+                if (userDto.getUserId().equals(boardEntity.getUserId())) {
+                    nickname = userDto.getNickname();
+                }
+            }
 
             // 엔티티를 바로 반환시키면 안좋음
             BoardFindDto boardFindDto = BoardFindDto.builder()
                     .boardId(boardEntity.getBoardId())
                     .title(boardEntity.getTitle())
                     .content(boardEntity.getContent())
-                    .nickname(userResult.getBody().getResult().getNickname())
+                    .nickname(nickname)
                     .viewCount(boardEntity.getViewCnt() == null ? 0 : boardEntity.getViewCnt())
                     .createDate(boardEntity.getCreateDate().format(formatter))
                     .build();
@@ -204,6 +246,35 @@ public class BoardService {
             throw new JApplicationException("닉네임이 등록이 필요합니다.");
         }
 
+        if (boardEditDto.getTitle() == null) {
+            log.error("title null");
+            throw new JApplicationException("제목을 확인해 주세요.");
+        }
+
+        if (boardEditDto.getTitle().length() == 0) {
+            log.error("title length null");
+            throw new JApplicationException("제목을 확인해 주세요.");
+        }
+
+        if (boardEditDto.getTitle().length() > 20) {
+            log.error("title length 20");
+            throw new JApplicationException("제목은 20자 이하로 입력해 주세요.");
+        }
+
+        if (boardEditDto.getContent() == null) {
+            log.error("content null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (boardEditDto.getContent().length() == 0) {
+            log.error("content length null");
+            throw new JApplicationException("내용을 확인해 주세요.");
+        }
+
+        if (boardEditDto.getContent().length() > 2000) {
+            log.error("content length 2000");
+            throw new JApplicationException("내용은 2000자 이하로 입력해 주세요.");
+        }
 
         // 작성자인지 검증
         if (userId != boardEntity.getUserId()) {
